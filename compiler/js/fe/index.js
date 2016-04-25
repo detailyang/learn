@@ -2,17 +2,39 @@
 * @Author: detailyang
 * @Date:   2016-04-25 02:40:20
 * @Last Modified by:   detailyang
-* @Last Modified time: 2016-04-25 03:17:46
+* @Last Modified time: 2016-04-26 00:50:42
 */
 
 'use strict';
 
-import Tokenizer from './tokenizer';
+const Uglifyjs = require('./Uglifyjs');
+const tokenizer = Uglifyjs.tokenizer;
 
-const code = `var x = 1 + 2;
-/* test */
-`
-const tokenizer = new Tokenizer(code, {});
-tokenizer.next()
+// console.log(tokenizer);
+// const input = tokenizer(code);
+// for (;;) {
+//     const token = input();
+//     if (token.type === 'eof') {
+//         break;
+//     }
+//     console.log(token);
+// }
 
-console.log(tokenizer);
+const mytokenizer = require('./tokenizer');
+const code = `
+    var x = 123;
+    // a ++
+    /*
+    abcd
+     */
+`;
+
+const myinput = mytokenizer(code);
+for (;;) {
+    const token = myinput();
+    if (token.type === 'eof') {
+        break;
+    }
+    console.log(token);
+}
+
