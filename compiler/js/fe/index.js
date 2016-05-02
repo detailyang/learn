@@ -2,7 +2,7 @@
 * @Author: detailyang
 * @Date:   2016-04-25 02:40:20
 * @Last Modified by:   detailyang
-* @Last Modified time: 2016-05-02 16:41:42
+* @Last Modified time: 2016-05-02 16:46:29
 */
 
 'use strict';
@@ -311,38 +311,31 @@ function parse(input) {
     }
     function maybe_call(expr) {
         expr = expr();
-        console.log('abcd', input.peek(), expr);
         return is_punc("(") ? parse_call(expr) : expr;
     }
     function parse_atom() {
         return maybe_call(function(){
             if (is_punc("(")) {
-                console.log('(asdfasdfasfd');
                 input.next();
                 var exp = parse_expression();
                 skip_punc(")");
                 return exp;
             }
             if (is_punc("{")) {
-                console.log('{');
                 return parse_prog();
             }
             if (is_kw("if")) {
-                console.log('if');
                 return parse_if();
             }
             if (is_kw("true") || is_kw("false")) {
-                console.log('true');
                 return parse_bool();
             }
             if (is_kw("lambda") || is_kw("λ")) {
-                console.log('lambda');
                 input.next();
                 return parse_lambda();
             }
             var tok = input.next();
             if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
-                console.log('var');
                 return tok;
             }
             unexpected();
@@ -383,6 +376,18 @@ function myparse(input) {
         } else {
             input.croak("Expecting punctuation: \"" + ch + "\"");
         }
+    }
+    function delimited(start, stop, separator, parser) {
+        let a = [], first = true;
+        skip_punc(start);
+        while (!input.eof()) {
+            if (is_punc(stop)) break;
+            if (first) first = false; else skip_punc(separator);
+            if (is_punc(stop)) break;
+            a.push(parser());
+        }
+        skip_punc(stop);
+        return a;
     }
     function parse_call(func) {
         return {
@@ -433,6 +438,8 @@ function myparse(input) {
     }
 }
 
-const ast = parse(new InputStream(new Input(code)));
+const ast = myparse(new InputStream(new Input(code)));
+console.log(myast.prog);
+const myast = myparse(new InputStream(new Input(code)));
 console.log(ast.prog);
 
