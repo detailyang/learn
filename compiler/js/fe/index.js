@@ -2,10 +2,11 @@
 * @Author: detailyang
 * @Date:   2016-04-25 02:40:20
 * @Last Modified by:   detailyang
-* @Last Modified time: 2016-05-02 16:46:29
+* @Last Modified time: 2016-05-02 17:04:23
 */
 
 'use strict';
+
 
 function Input(input) {
     let pos = 0;
@@ -200,6 +201,11 @@ function InputStream(input) {
 
 const code = `
 println("Hello World!");
+if a <= b {
+    print(", ");
+} else {
+    println("");
+}
 `;
 var FALSE = { type: "bool", value: false };
 function parse(input) {
@@ -365,10 +371,22 @@ function parse(input) {
 
 
 function myparse(input) {
+    var PRECEDENCE = {
+        "=": 1,
+        "||": 2,
+        "&&": 3,
+        "<": 7, ">": 7, "<=": 7, ">=": 7, "==": 7, "!=": 7,
+        "+": 10, "-": 10,
+        "*": 20, "/": 20, "%": 20,
+    };
     return parse_toplevel();
     function is_punc(ch) {
         const tok = input.peek();
         return tok && tok.type == "punc" && (!ch || tok.value == ch) && tok;
+    }
+    function is_op(op) {
+        var tok = input.peek();
+        return tok && tok.type == "op" && (!op || tok.value == op) && tok;
     }
     function skip_punc(ch) {
         if (is_punc(ch)) {
@@ -376,6 +394,14 @@ function myparse(input) {
         } else {
             input.croak("Expecting punctuation: \"" + ch + "\"");
         }
+    }
+    function is_kw(kw) {
+        var tok = input.peek();
+        return tok && tok.type == "kw" && (!kw || tok.value == kw) && tok;
+    }
+    function skip_kw(kw) {
+        if (is_kw(kw)) input.next();
+        else input.croak("Expecting keyword: \"" + kw + "\"");
     }
     function delimited(start, stop, separator, parser) {
         let a = [], first = true;
@@ -408,10 +434,44 @@ function myparse(input) {
         }
         return {type: "prog", prog: prog};
     }
+    function maybe_binary(left, my_prec) {
+        var tok = is_op();
+        if (tok) {
+            var his_prec = PRECEDENCE[tok.value];
+            if (his_prec > my_prec) {
+                input.next();
+                return maybe_binary({
+                    type     : tok.value == "=" ? "assign" : "binary",
+                    operator : tok.value,
+                    left     : left,
+                    right    : maybe_binary(parse_atom(), his_prec)
+                }, my_prec);
+            }
+        }
+        return left;
+    }
     function parse_expression() {
         return maybe_call(() => {
-            return parse_atom();
+            return maybe_binary(parse_atom(), 0);
         });
+    }
+    function parse_if() {
+        skip_kw("if");
+        const cond = parse_expression();
+        if (!is_punc("{")) {
+            skip_kw("then");
+        }
+        const then = parse_expression();
+        var ret = {
+            type: "if",
+            cond: cond,
+            then: then,
+        };
+        if (is_kw("else")) {
+            input.next();
+            ret.else = parse_expression();
+        }
+        return ret;
     }
     function parse_atom() {
         if (is_punc("{")) return parse_prog();
@@ -420,6 +480,9 @@ function myparse(input) {
             const exp = parse_expression();
             skip_punc(")");
             return exp;
+        }
+        if (is_kw("if")) {
+            return parse_if();
         }
         const tok = input.next();
         if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
@@ -438,8 +501,8 @@ function myparse(input) {
     }
 }
 
-const ast = myparse(new InputStream(new Input(code)));
-console.log(myast.prog);
-const myast = myparse(new InputStream(new Input(code)));
+const ast = parse(new InputStream(new Input(code)));
 console.log(ast.prog);
+const myast = myparse(new InputStream(new Input(code)));
+console.log(myast.prog);
 
