@@ -2,7 +2,7 @@
 * @Author: detailyang
 * @Date:   2016-04-25 02:40:20
 * @Last Modified by:   detailyang
-* @Last Modified time: 2016-05-02 17:04:23
+* @Last Modified time: 2016-05-03 00:13:54
 */
 
 'use strict';
@@ -198,15 +198,6 @@ function InputStream(input) {
         return peek() == null;
     }
 }
-
-const code = `
-println("Hello World!");
-if a <= b {
-    print(", ");
-} else {
-    println("");
-}
-`;
 var FALSE = { type: "bool", value: false };
 function parse(input) {
     var PRECEDENCE = {
@@ -473,8 +464,27 @@ function myparse(input) {
         }
         return ret;
     }
+    function parse_varname() {
+        var tok = input.next();
+        if (tok.type != "var") input.croak("Expecting variable name");
+        return tok.value;
+    }
+    function parse_lambda() {
+        return {
+            type: "lambda",
+            vars: delimited("(", ")", ",", parse_varname),
+            body: parse_expression()
+        };
+    }
+    function parse_bool() {
+        return {
+            type: "bool",
+            value: input.next().value
+        };
+    }
     function parse_atom() {
         if (is_punc("{")) return parse_prog();
+        if (is_kw("true") || is_kw("false")) return parse_bool();
         if (is_punc("(")) {
             input.next();
             const exp = parse_expression();
@@ -483,6 +493,10 @@ function myparse(input) {
         }
         if (is_kw("if")) {
             return parse_if();
+        }
+        if (is_kw("lambda") || is_kw("λ")) {
+            input.next();
+            return parse_lambda();
         }
         const tok = input.next();
         if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
@@ -501,6 +515,15 @@ function myparse(input) {
     }
 }
 
+const code = `
+fib = lambda (n) if n < 2 then n else fib(n - 1) + fib(n - 2);
+println("Hello World!");
+if a <= b {
+    print(", ");
+} else {
+    println("");
+}
+`;
 const ast = parse(new InputStream(new Input(code)));
 console.log(ast.prog);
 const myast = myparse(new InputStream(new Input(code)));
