@@ -2,7 +2,7 @@
 * @Author: detailyang
 * @Date:   2016-04-25 02:40:20
 * @Last Modified by:   detailyang
-* @Last Modified time: 2016-05-03 00:55:01
+* @Last Modified time: 2016-05-09 23:57:42
 */
 
 'use strict';
@@ -71,7 +71,7 @@ function InputStream(input) {
     }
 
     function is_keyword(x) {
-        const keywords = " if then else lambda λ true false ";
+        const keywords = " if then else lambda λ true false let ";
         return keywords.indexOf(" " + x + " ") >= 0;
     }
 
@@ -295,9 +295,40 @@ function parse(input) {
     function parse_lambda() {
         return {
             type: "lambda",
+            name: input.peek().type == "var" ? input.next().value : null, // this line
             vars: delimited("(", ")", ",", parse_varname),
             body: parse_expression()
         };
+    }
+    function parse_let() {
+        skip_kw("let");
+        if (input.peek().type == "var") {
+            var name = input.next().value;
+            var defs = delimited("(", ")", ",", parse_vardef);
+            return {
+                type: "call",
+                func: {
+                    type: "lambda",
+                    name: name,
+                    vars: defs.map(function(def){ return def.name }),
+                    body: parse_expression(),
+                },
+                args: defs.map(function(def){ return def.def || FALSE })
+            };
+        }
+        return {
+            type: "let",
+            vars: delimited("(", ")", ",", parse_vardef),
+            body: parse_expression(),
+        };
+    }
+    function parse_vardef() {
+        var name = parse_varname(), def;
+        if (is_op("=")) {
+            input.next();
+            def = parse_expression();
+        }
+        return { name: name, def: def };
     }
     function parse_bool() {
         return {
@@ -317,31 +348,24 @@ function parse(input) {
                 skip_punc(")");
                 return exp;
             }
-            if (is_punc("{")) {
-                return parse_prog();
-            }
-            if (is_kw("if")) {
-                return parse_if();
-            }
-            if (is_kw("true") || is_kw("false")) {
-                return parse_bool();
-            }
+            if (is_punc("{")) return parse_prog();
+            if (is_kw("let")) return parse_let();
+            if (is_kw("if")) return parse_if();
+            if (is_kw("true") || is_kw("false")) return parse_bool();
             if (is_kw("lambda") || is_kw("λ")) {
                 input.next();
                 return parse_lambda();
             }
             var tok = input.next();
-            if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
+            if (tok.type == "var" || tok.type == "num" || tok.type == "str")
                 return tok;
-            }
             unexpected();
         });
     }
     function parse_toplevel() {
         var prog = [];
         while (!input.eof()) {
-            const node = parse_expression();
-            prog.push(node);
+            prog.push(parse_expression());
             if (!input.eof()) skip_punc(";");
         }
         return { type: "prog", prog: prog };
@@ -471,6 +495,7 @@ function myparse(input) {
     function parse_lambda() {
         return {
             type: "lambda",
+            name: input.peek().type == "var" ? input.next().value : null,
             vars: delimited("(", ")", ",", parse_varname),
             body: parse_expression()
         };
@@ -481,27 +506,66 @@ function myparse(input) {
             value: input.next().value
         };
     }
+    function parse_let() {
+        skip_kw("let");
+        if (input.peek().type === "var") {
+            var name = input.next().value;
+            var defs = delimited("(", ")", ",", parse_vardef);
+            return {
+                type: "call",
+                func: {
+                    type: "lambda",
+                    name: name,
+                    vars: defs.map(function(def){ return def.name }),
+                    body: parse_expression(),
+                },
+                args: defs.map(function(def){ return def.def || FALSE })
+            };
+        }
+        return {
+            type: "let",
+            vars: delimited("(", ")", ",", parse_vardef),
+            body: parse_expression(),
+        };
+    }
+    function parse_vardef() {
+        var name = parse_varname(), def;
+        if (is_op("=")) {
+            input.next();
+            def = parse_expression();
+        }
+        return { name: name, def: def };
+    }
     function parse_atom() {
-        if (is_punc("{")) return parse_prog();
-        if (is_kw("true") || is_kw("false")) return parse_bool();
-        if (is_punc("(")) {
-            input.next();
-            const exp = parse_expression();
-            skip_punc(")");
-            return exp;
-        }
-        if (is_kw("if")) {
-            return parse_if();
-        }
-        if (is_kw("lambda") || is_kw("λ")) {
-            input.next();
-            return parse_lambda();
-        }
-        const tok = input.next();
-        if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
-            return tok;
-        }
-        unexpected();
+        return maybe_call(function(){
+            if (is_punc("(")) {
+                input.next();
+                var exp = parse_expression();
+                skip_punc(")");
+                return exp;
+            }
+            if (is_punc("{")) {
+                return parse_prog();
+            }
+            if (is_kw("let")) {
+                return parse_let();
+            }
+            if (is_kw("if")) {
+                return parse_if();
+            }
+            if (is_kw("true") || is_kw("false")) {
+                return parse_bool();
+            }
+            if (is_kw("lambda") || is_kw("λ")) {
+                input.next();
+                return parse_lambda();
+            }
+            var tok = input.next();
+            if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
+                return tok;
+            }
+            unexpected();
+        });
     }
     function unexpected() {
         input.croak("Unexpected token: " + JSON.stringify(input.peek()));
@@ -515,7 +579,7 @@ function myparse(input) {
 }
 
 function Environment(parent) {
-    this.vars = Object.create(parent || {});
+    this.vars = Object.create(parent ? parent.vars : null);
     this.parent = parent;
 }
 
@@ -569,6 +633,13 @@ function evaluate(exp, env) {
                             evaluate(exp.right, env));
         case "lambda":
             return make_lambda(env, exp);
+        case "let":
+            exp.vars.forEach(function(v){
+              var scope = env.extend();
+              scope.def(v.name, v.def ? evaluate(v.def, env) : false);
+              env = scope;
+            });
+            return evaluate(exp.body, env);
         case "if":
             var cond = evaluate(exp.cond, env);
             if (cond !== false) {
@@ -623,6 +694,10 @@ function apply_op(op, a, b) {
 }
 
 function make_lambda(env, exp) {
+    if (exp.name) {                    // these
+        env = env.extend();            // lines
+        env.def(exp.name, lambda);     // are
+    }
     function lambda() {
         var names = exp.vars;
         var scope = env.extend();
@@ -635,6 +710,7 @@ function make_lambda(env, exp) {
 }
 
 
+
 // const code = `
 // fib = lambda (n) if n < 2 then n else fib(n - 1) + fib(n - 2);
 // println("Hello World!");
@@ -645,16 +721,26 @@ function make_lambda(env, exp) {
 // }
 // `;
 // some test code here
-const code = "sum = lambda(x, y) x + y; print(sum(2, 3));";
+// const code = "sum = lambda(x, y) x + y; print(sum(2, 3));";
+const code = `
+println(let loop (n = 10)
+    if n > 0 then
+        n + loop(n - 1)
+    else
+        0);
+`;
 
 
 // remember, parse takes a TokenStream which takes an InputStream
-const ast = parse(new InputStream(new Input(code)));
+const ast = myparse(new InputStream(new Input(code)));
 // create the global environment
 const globalEnv = new Environment();
 
 // define the "print" primitive function
 globalEnv.def("print", function(txt){
+  console.log(txt);
+});
+globalEnv.def("println", function(txt){
   console.log(txt);
 });
 

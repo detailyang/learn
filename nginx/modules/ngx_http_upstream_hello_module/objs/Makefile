@@ -1,0 +1,38 @@
+
+CC = cc
+CFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g  -DNDK_SET_VAR -fPIC
+CPP = cc -E
+LINK = $(CC) -rdynamic  -fPIC  -shared  
+
+
+CORE_LIBS = 
+CORE_INCS = 
+HTTP_INCS = 
+
+CORE_LINK = 
+NGX_LD_OPT = 
+
+
+ALL_INCS =  -Imodules/ngx_http_lua_module/src/api -I/usr/include/libxml2 -Iobjs -I/opt/tengine/include
+
+CORE_DEPS =  /opt/tengine/include/nginx.h /opt/tengine/include/ /opt/tengine/include/ngx_config.h /opt/tengine/include/ /opt/tengine/include/ngx_core.h /opt/tengine/include/ /opt/tengine/include/ngx_log.h /opt/tengine/include/ /opt/tengine/include/ngx_palloc.h /opt/tengine/include/ /opt/tengine/include/ngx_array.h /opt/tengine/include/ /opt/tengine/include/ngx_list.h /opt/tengine/include/ /opt/tengine/include/ngx_hash.h /opt/tengine/include/ /opt/tengine/include/ngx_buf.h /opt/tengine/include/ /opt/tengine/include/ngx_queue.h /opt/tengine/include/ /opt/tengine/include/ngx_string.h /opt/tengine/include/ /opt/tengine/include/ngx_parse.h /opt/tengine/include/ /opt/tengine/include/ngx_inet.h /opt/tengine/include/ /opt/tengine/include/ngx_file.h /opt/tengine/include/ /opt/tengine/include/ngx_crc.h /opt/tengine/include/ /opt/tengine/include/ngx_crc32.h /opt/tengine/include/ /opt/tengine/include/ngx_murmurhash.h /opt/tengine/include/ /opt/tengine/include/ngx_md5.h /opt/tengine/include/ /opt/tengine/include/ngx_sha1.h /opt/tengine/include/ /opt/tengine/include/ngx_rbtree.h /opt/tengine/include/ /opt/tengine/include/ngx_trie.h /opt/tengine/include/ /opt/tengine/include/ngx_segment_tree.h /opt/tengine/include/ /opt/tengine/include/ngx_radix_tree.h /opt/tengine/include/ /opt/tengine/include/ngx_slab.h /opt/tengine/include/ /opt/tengine/include/ngx_times.h /opt/tengine/include/ /opt/tengine/include/ngx_shmtx.h /opt/tengine/include/ /opt/tengine/include/ngx_connection.h /opt/tengine/include/ /opt/tengine/include/ngx_cycle.h /opt/tengine/include/ /opt/tengine/include/ngx_conf_file.h /opt/tengine/include/ /opt/tengine/include/ngx_resolver.h /opt/tengine/include/ /opt/tengine/include/ngx_open_file_cache.h /opt/tengine/include/ /opt/tengine/include/ngx_crypt.h /opt/tengine/include/ /opt/tengine/include/ngx_proxy_protocol.h /opt/tengine/include/ /opt/tengine/include/ngx_event.h /opt/tengine/include/ /opt/tengine/include/ngx_event_timer.h /opt/tengine/include/ /opt/tengine/include/ngx_event_posted.h /opt/tengine/include/ /opt/tengine/include/ngx_event_busy_lock.h /opt/tengine/include/ /opt/tengine/include/ngx_event_connect.h /opt/tengine/include/ /opt/tengine/include/ngx_event_pipe.h /opt/tengine/include/ /opt/tengine/include/ngx_time.h /opt/tengine/include/ /opt/tengine/include/ngx_errno.h /opt/tengine/include/ /opt/tengine/include/ngx_alloc.h /opt/tengine/include/ /opt/tengine/include/ngx_files.h /opt/tengine/include/ /opt/tengine/include/ngx_channel.h /opt/tengine/include/ /opt/tengine/include/ngx_shmem.h /opt/tengine/include/ /opt/tengine/include/ngx_process.h /opt/tengine/include/ /opt/tengine/include/ngx_setaffinity.h /opt/tengine/include/ /opt/tengine/include/ngx_setproctitle.h /opt/tengine/include/ /opt/tengine/include/ngx_atomic.h /opt/tengine/include/ /opt/tengine/include/ngx_gcc_atomic_x86.h /opt/tengine/include/ /opt/tengine/include/ngx_thread.h /opt/tengine/include/ /opt/tengine/include/ngx_socket.h /opt/tengine/include/ /opt/tengine/include/ngx_os.h /opt/tengine/include/ /opt/tengine/include/ngx_user.h /opt/tengine/include/ /opt/tengine/include/ngx_pipe.h /opt/tengine/include/ /opt/tengine/include/ngx_sysinfo.h /opt/tengine/include/ /opt/tengine/include/ngx_process_cycle.h /opt/tengine/include/ /opt/tengine/include/ngx_linux_config.h /opt/tengine/include/ /opt/tengine/include/ngx_linux.h /opt/tengine/include/ /opt/tengine/include/ngx_syslog.h /opt/tengine/include/ /opt/tengine/include/ngx_proc.h /opt/tengine/include/ /opt/tengine/include/ngx_event_openssl.h /opt/tengine/include/ /opt/tengine/include/ngx_regex.h /opt/tengine/include/ /opt/tengine/include/ngx_auto_config.h
+
+HTTP_DEPS =  /opt/tengine/include/ngx_http.h /opt/tengine/include/ngx_http_request.h /opt/tengine/include/ngx_http_config.h /opt/tengine/include/ngx_http_core_module.h /opt/tengine/include/ngx_http_cache.h /opt/tengine/include/ngx_http_variables.h /opt/tengine/include/ngx_http_script.h /opt/tengine/include/ngx_http_upstream.h /opt/tengine/include/ngx_http_upstream_round_robin.h /opt/tengine/include/ngx_http_busy_lock.h /opt/tengine/include/ngx_http_ssi_filter_module.h /opt/tengine/include/ngx_http_spdy.h /opt/tengine/include/ngx_http_spdy_module.h /opt/tengine/include/ngx_http_ssl_module.h /opt/tengine/include/ddebug.h /opt/tengine/include/ngx_http_lua_script.h /opt/tengine/include/ngx_http_lua_log.h /opt/tengine/include/ngx_http_lua_subrequest.h /opt/tengine/include/ngx_http_lua_ndk.h /opt/tengine/include/ngx_http_lua_control.h /opt/tengine/include/ngx_http_lua_time.h /opt/tengine/include/ngx_http_lua_string.h /opt/tengine/include/ngx_http_lua_misc.h /opt/tengine/include/ngx_http_lua_variable.h /opt/tengine/include/ngx_http_lua_output.h /opt/tengine/include/ngx_http_lua_headers.h /opt/tengine/include/ngx_http_lua_uri.h /opt/tengine/include/ngx_http_lua_req_body.h /opt/tengine/include/ngx_http_lua_args.h /opt/tengine/include/ngx_http_lua_ctx.h /opt/tengine/include/ngx_http_lua_regex.h /opt/tengine/include/ngx_http_lua_common.h /opt/tengine/include/ngx_http_lua_directive.h /opt/tengine/include/ngx_http_lua_headers_out.h /opt/tengine/include/ngx_http_lua_headers_in.h /opt/tengine/include/ngx_http_lua_consts.h /opt/tengine/include/ngx_http_lua_exception.h /opt/tengine/include/ngx_http_lua_util.h /opt/tengine/include/ngx_http_lua_cache.h /opt/tengine/include/ngx_http_lua_contentby.h /opt/tengine/include/ngx_http_lua_rewriteby.h /opt/tengine/include/ngx_http_lua_accessby.h /opt/tengine/include/ngx_http_lua_setby.h /opt/tengine/include/ngx_http_lua_capturefilter.h /opt/tengine/include/ngx_http_lua_clfactory.h /opt/tengine/include/ngx_http_lua_pcrefix.h /opt/tengine/include/ngx_http_lua_headerfilterby.h /opt/tengine/include/ngx_http_lua_shdict.h /opt/tengine/include/ngx_http_lua_socket_tcp.h /opt/tengine/include/ngx_http_lua_api.h /opt/tengine/include/ngx_http_lua_logby.h /opt/tengine/include/ngx_http_lua_sleep.h /opt/tengine/include/ngx_http_lua_coroutine.h /opt/tengine/include/ngx_http_lua_bodyfilterby.h /opt/tengine/include/ngx_http_lua_initby.h /opt/tengine/include/ngx_http_lua_initworkerby.h /opt/tengine/include/ngx_http_lua_socket_udp.h /opt/tengine/include/ngx_http_lua_req_method.h /opt/tengine/include/ngx_http_lua_phase.h /opt/tengine/include/ngx_http_lua_probe.h /opt/tengine/include/ngx_http_lua_uthread.h /opt/tengine/include/ngx_http_lua_timer.h /opt/tengine/include/ngx_http_lua_config.h /opt/tengine/include/ngx_http_lua_worker.h /opt/tengine/include/ngx_http_reqstat.h
+
+ADDON_DEPS = $(CORE_DEPS) /shared/art/opensource/personal/learn/nginx/modules/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.c
+
+
+objs/ngx_http_upstream_hello_module.so:	objs/src/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.o
+
+	$(LINK) -o  objs/ngx_http_upstream_hello_module.so \
+	objs/src/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.o
+	
+
+
+objs/src/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.o:	$(ADDON_DEPS) \
+	/shared/art/opensource/personal/learn/nginx/modules/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.c
+	$(CC) -c $(CFLAGS) $(CORE_INCS) $(HTTP_INCS) \
+		$(ALL_INCS) \
+		-o objs/src/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.o \
+		/shared/art/opensource/personal/learn/nginx/modules/ngx_http_upstream_hello_module/ngx_http_upstream_hello_module.c
+
