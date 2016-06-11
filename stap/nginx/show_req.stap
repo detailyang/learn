@@ -1,0 +1,8 @@
+// show_one_req.stap
+probe process("/opt/openresty/nginx/sbin/nginx").function("ngx_http_*") {
+    printf("%s -> %s\n", thread_indent(4), probefunc());
+}
+
+probe process("/opt/openresty/nginx/sbin/nginx").function("ngx_http_*").return {
+    printf("%s <- %s\n", thread_indent(-4), probefunc());
+}
