@@ -1,0 +1,8 @@
+probe syscall.open {
+	printf ("%s(%d) open (%s) cpu:%d\n", execname(), pid(), argstr, cpu())
+}
+
+probe timer.ms(4000)
+{
+	exit ()
+}

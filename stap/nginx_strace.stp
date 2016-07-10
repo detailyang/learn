@@ -1,0 +1,20 @@
+probe begin {
+	printf("beigin trace %d\n", target())
+}
+
+
+probe process("/usr/local/nginx/sbin/nginx").function("ngx_http_*").return {
+	res = ""
+	b = ubacktrace();
+	token = tokenize(b, " ");
+	for (;;) {
+		token = tokenize("", " ");
+		if (token == "") {
+			break;
+		}
+                addr = strtol(token, 16)
+                sym = usymname(addr)
+		res = sym . "\n" . res
+	}
+	print(res)
+}

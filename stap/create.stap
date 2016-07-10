@@ -1,0 +1,16 @@
+function is_open_creating:long (flag:long) {
+    CREAT_FLAG = 4
+    if (flag & CREAT_FLAG) {
+        return 1
+    }
+    return 0
+}
+
+probe kernel.function("sys_open") {
+    creating = is_open_creating($mode)
+    if (creating) {
+        printf("Creating file %s\n", user_string($filename))
+    } else {
+        printf("Opening file %s\n", user_string($filename))
+    }
+}

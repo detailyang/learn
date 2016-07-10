@@ -1,0 +1,3 @@
+probe begin {
+	print(@hist_linear(123,0,100,10))
+}
