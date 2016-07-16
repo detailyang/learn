@@ -1,0 +1,3 @@
+probe syscall.open {
+	ptinf("%s(%d) open\n", execname(), pid())
+}

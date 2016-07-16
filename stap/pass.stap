@@ -1,0 +1,3 @@
+probe begin {
+	printf("arg1: %s, arg2: %s\n", @1, @2)
+}

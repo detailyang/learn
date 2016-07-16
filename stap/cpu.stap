@@ -1,0 +1,3 @@
+probe timer.profile {
+	printf("cpu: %d - process: %s\n", cpu(), execname())
+}

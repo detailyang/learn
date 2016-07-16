@@ -1,0 +1,11 @@
+probe syscall.mkdir {
+	printf("dir %s using mode %d", user_string($pathname), $mode)
+}
+
+probe syscall.mkdir.return {
+	if (!$return) {
+		printf("created")
+	} else {
+		printf("failed")
+	}
+}

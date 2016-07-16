@@ -1,0 +1,5 @@
+probe syscall.write {
+	if (isinstr(user_string($buf), "1234")) {
+		print(user_string($buf))
+	}
+}

@@ -1,0 +1,3 @@
+probe timer.s(1) {
+	printf ("your target %d\n", target())
+}

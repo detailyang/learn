@@ -1,0 +1,3 @@
+probe module("ext3").function("ext3_get*"), module("ext3").function("ext3_set*") {
+	print("get or setting\n")
+}

@@ -1,0 +1,5 @@
+probe kernel.function("vfs_read") {
+	#printf("%s\n", $$parms$$);
+	printf("%s\n", $$parms$);
+	exit();
+}

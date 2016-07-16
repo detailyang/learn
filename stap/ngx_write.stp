@@ -1,0 +1,7 @@
+probe process("/usr/local/openresty/nginx/sbin/nginx").function("ngx_http_log_write").call {
+	printf("you call %d\r\n", $len)
+}
+
+probe process("/usr/local/openresty/nginx/sbin/nginx").function("ngx_http_log_write").return {
+	print("return log %s\r\n")
+}

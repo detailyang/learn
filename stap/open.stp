@@ -1,5 +1,5 @@
 probe syscall.open {
-	printf ("%s(%d) open (%s) cpu:%d\n", execname(), pid(), argstr, cpu())
+	printf ("%s(%d) open (%s) cpu:%d %s\n", execname(), pid(), argstr, cpu(), pp())
 }
 
 probe timer.ms(4000)
